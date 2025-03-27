@@ -1,0 +1,50 @@
+network stuff 
+
+the tcp protocol is statfull protocol because it maintain a session between the client and the server (require handshake)
+the udp is statless don't maintain a session (just send a data)
+
+in the case of the tcp the os maintain a connection table for the connections using these info
+(Source IP, Source Port, Destination IP, Destination Port, State)
+and therefor it handles the reliability (ordering and retrans)
+
+in the case of udp the os only manage delivering the backet to the correct process based on the port number 
+
+
+
+
+
+--->wildcard ip address (0.0.0.0) listen for all the interfaces in the system if there ip address for wifi and another for ethernet and
+another for loopback it dosn't matter the source (multihomed host)
+
+
+
+--->the UDB based applications must take care of the ip fragementation becaue in the UDB there is not way to know the MTU of the path 
+and to make the ip datagrame less than the  (minimum reassembly buffer)
+
+
+
+
+---------- the kernel deals with the network ---------------------------------------------------------------------------------------------
+
+the server open a socket with specific ip and specific port to listen for connections in this socket and when it accept a connection 
+it becomes a specific thing between the client socket and the server socket 
+
+
+for each socket the kernel makes a 2 queues (this is analogy not the exact data structure that used)
+and we can control the size of these queues by the backlog parameter 
+
+
+1--syn queue (handles clients that didn't completed the 3 way hand shake yet)
+
+2--accept queue (when the request complete the handshake it move from the syn q to this q  ) and not yet accepted from the application 
+
+
+when the application make sys call accept() it accept from the completed connections in the accept queue and make another 2 queues dedicated
+for this connection 
+and this connection now contain all info about the client (ip and port) and the server socket (ip and port)
+(and the connection bind to a file descriptor that in the PCB for this process )
+
+
+1--send queue (when the process sends data to this connection it go to this queue)
+
+2--recieve queue (when the process read data from this connection it recv it from this queue)
